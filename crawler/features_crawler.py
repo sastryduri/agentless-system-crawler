@@ -17,6 +17,7 @@ import cPickle as pickle
 # Additional modules
 
 import platform_outofband
+import osinfo
 
 # External dependencies that must be pip install'ed separately
 
@@ -147,6 +148,11 @@ class FeaturesCrawler:
                 platform.system().lower(),
                 platform.version(),
             )
+            result = osinfo.get_osinfo()
+            if result:
+                feature_attributes['os'] = result['os']
+                feature_attributes['os_version'] = result['version']
+
         elif self.crawl_mode == Modes.MOUNTPOINT:
             logger.debug('Using disk image information (crawl mode: ' +
                          self.crawl_mode + ')')
@@ -165,6 +171,12 @@ class FeaturesCrawler:
                 platform_outofband.system(prefix=mountpoint).lower(),
                 platform_outofband.version(prefix=mountpoint),
             )
+
+            result = osinfo.get_osinfo(mountpoint)
+            if result:
+                feature_attributes['os'] = result['os']
+                feature_attributes['os_version'] = result['version']
+
         elif self.crawl_mode == Modes.OUTVM:
 
             (domain_name, kernel_version, distro, arch) = self.vm
